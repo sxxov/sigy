@@ -7,9 +7,7 @@ export type MaybeInvalidator = void | Invalidator | Promise<void | Invalidator>;
 export type Invalidator = () => void | Promise<void>;
 export type Unsubscriber = () => void;
 
-export type Starter<T extends WritableSignal<any>> = (
-	store: Bondaged<T>,
-) => MaybeStopper;
+export type Starter<T> = (store: Bondaged<WritableSignal<T>>) => MaybeStopper;
 export type MaybeStopper = void | Stopper | Promise<void | Stopper>;
 export type Stopper = Invalidator;
 
@@ -23,8 +21,8 @@ export interface ReadableSignal<T> {
 	subscribe(onValue: Subscriber<T>): Unsubscriber;
 	subscribeSoon(onNextValue: Subscriber<T>): Unsubscriber;
 
-	subscribeStart(onStart: Starter<WritableSignal<T>>): Unsubscriber;
-	subscribeStartSoon(onNextStart: Starter<WritableSignal<T>>): Unsubscriber;
+	subscribeStart(onStart: Starter<T>): Unsubscriber;
+	subscribeStartSoon(onNextStart: Starter<T>): Unsubscriber;
 
 	subscribeStop(onStop: Stopper): Unsubscriber;
 	subscribeStopSoon(onNextStop: Stopper): Unsubscriber;
