@@ -8,8 +8,8 @@
 	"exports": {
 		".": {
 			"import": "./dist/sigy.js",
-			"default": "./dist/sigy.umd.js",
-			"types": "./dist/sigy.d.ts"
+			"types": "./dist/sigy.d.ts",
+			"default": "./dist/sigy.umd.js"
 		}
 	},
 	"files": [
