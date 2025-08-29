@@ -30,31 +30,27 @@ here's a mini demo.
 import { Signal, subscribe, derive, bin } from 'sigy';
 
 // create a "bin" to store our cleanup functions
-const { collect, dispose } = bin();
+const _ = bin();
 
 // create signals
 const a = new Signal(1);
 const b = new Signal(2);
 
 // collect the returned unsubscribe function into our bin
-collect(
+_._ = subscribe({ a, b }, ({ $a, $b }) => {
 	// log the value of `a` & `b` when they change
-	subscribe({ a, b }, ({ $a, $b }) => {
-		console.log(`a: ${$a}, b: ${$b}`);
-	}),
-);
+	console.log(`a: ${$a}, b: ${$b}`);
+});
 
 // create a `sum` signal when either `a` or `b` changes
 // with the value of `a + b`
 const sum = derive({ a, b }, ({ $a, $b }) => $a + $b);
 
 // collect the returned unsubscribe function into our bin
-collect(
+_._ = subscribe({ sum }, ({ $sum }) => {
 	// log the value of `sum` when it changes
-	subscribe({ sum }, ({ $sum }) => {
-		console.log(`sum: ${$sum}`);
-	}),
-);
+	console.log(`sum: ${$sum}`);
+});
 
 console.log(sum.get()); // 3
 a.set(10);
@@ -62,7 +58,7 @@ a.set(10);
 // logs: sum: 12
 
 // dispose of all collected subscriptions
-dispose();
+_.dispose();
 a.set(0);
 // no logs, all done!
 ```
