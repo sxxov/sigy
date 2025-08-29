@@ -12,6 +12,7 @@
 			"default": "./dist/sigy.umd.js"
 		}
 	},
+	"repository": "github:sxxov/sigy",
 	"files": [
 		"dist"
 	],
