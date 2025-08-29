@@ -66,4 +66,16 @@ describe(bin, () => {
 		b.dispose();
 		expect(calls).toEqual(['x', 'y']);
 	});
+
+	it('return value calls dispose', () => {
+		const b = bin();
+		const calls: string[] = [];
+
+		b._ = () => {
+			calls.push('z');
+		};
+
+		b();
+		expect(calls).toEqual(['z']);
+	});
 });
