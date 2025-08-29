@@ -20,11 +20,12 @@ import { type WritableSignal } from '~/interfaces/WritableSignal';
  *   composed
  * @returns a starter suitable for the derived output signal
  */
-export function createDeriveStarter<T, R>(
-	input: ReadableSignal<T>,
-	mapper: (v: T) => R,
-	onStart?: Starter<R>,
-): Starter<R> {
+export function createDeriveStarter<
+	T,
+	In extends ReadableSignal<T>,
+	R,
+	Out extends WritableSignal<R>,
+>(input: In, mapper: (v: T) => R, onStart?: Starter<Out>): Starter<Out> {
 	return (store) => {
 		const maybeStopper = onStart?.(store);
 		const stopper = coerceInvalidator(maybeStopper);

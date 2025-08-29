@@ -1,4 +1,4 @@
-import type { ReadableSignal } from './ReadableSignal.js';
+import type { ReadableSignal } from './ReadableSignal';
 
 export type Updater<T> = (v: T) => T;
 

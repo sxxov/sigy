@@ -39,7 +39,7 @@ export class Signal<T> implements WritableSignal<T> {
 	private readonly invalidators = new Set<Invalidator>();
 	private readonly subscribers = new Set<Subscriber<T>>();
 
-	private readonly starters = new Set<Starter<T>>();
+	private readonly starters = new Set<Starter<this>>();
 	private readonly stoppers = new Set<Unsubscriber>();
 
 	private startedValue = false;
@@ -76,7 +76,9 @@ export class Signal<T> implements WritableSignal<T> {
 	 * @param onStart - optional starter invoked when the signal starts; its
 	 *   return value is treated as a stopper
 	 */
-	constructor(value: T, onStart?: Starter<T>) {
+	// https://github.com/microsoft/TypeScript/issues/38038
+	// change `onStart` to `Starter<this>` it's ever fixed
+	constructor(value: T, onStart?: Starter<Signal<T>>) {
 		this.value = value;
 
 		if (onStart) this.starters.add(onStart);
@@ -179,7 +181,7 @@ export class Signal<T> implements WritableSignal<T> {
 	 *   return a stopper
 	 * @returns unsubscriber for the start listener
 	 */
-	public subscribeStart(onStart: Starter<T>) {
+	public subscribeStart(onStart: Starter<this>) {
 		if (this.started) this.invokeStarter(onStart);
 
 		return this.subscribeStartSoon(onStart);
@@ -191,7 +193,7 @@ export class Signal<T> implements WritableSignal<T> {
 	 * @param onNextStart - starter to register
 	 * @returns unsubscriber for the start listener
 	 */
-	public subscribeStartSoon(onNextStart: Starter<T>) {
+	public subscribeStartSoon(onNextStart: Starter<this>) {
 		this.starters.add(onNextStart);
 
 		return () => {
@@ -300,10 +302,11 @@ export class Signal<T> implements WritableSignal<T> {
 	 * @param onStart - optional starter for the derived signal
 	 * @returns derived signal
 	 */
-	public derive<R>(mapper: (v: T) => R, onStart?: Starter<R>): Signal<R> {
-		let signal = this.deriveMapperToSignal.get(mapper) as
-			| Signal<R>
-			| undefined;
+	public derive<R>(
+		mapper: (v: T) => R,
+		onStart?: Starter<Signal<R>>,
+	): Signal<R> {
+		let signal = this.deriveMapperToSignal.get(mapper);
 		if (!signal) {
 			signal = new Signal(
 				mapper(this.get()),
@@ -325,7 +328,7 @@ export class Signal<T> implements WritableSignal<T> {
 			});
 	}
 
-	private invokeStarter(starter: Starter<T>) {
+	private invokeStarter(starter: Starter<this>) {
 		const maybeStopper = starter(bondage(this));
 		const stopper = coerceInvalidator(maybeStopper);
 		if (some(stopper))
