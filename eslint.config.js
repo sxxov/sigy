@@ -80,7 +80,7 @@ const config = /** @type {const} @satisfies {Linter.Config[]} */ ([
 					trailingUnderscore: 'forbid',
 
 					filter: {
-						regex: '(^\\d)|[^\\w$]|^$',
+						regex: '(^\\d)|[^\\w$]|^$|_',
 						match: false,
 					},
 				},

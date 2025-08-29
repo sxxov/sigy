@@ -3,7 +3,7 @@ import { bin } from './bin';
 
 describe(bin, () => {
 	it('collect/process/dispose: manage callbacks', () => {
-		const b = bin();
+		const _ = bin();
 		const calls: string[] = [];
 
 		const a = () => {
@@ -13,69 +13,69 @@ describe(bin, () => {
 			calls.push('b');
 		};
 
-		const unA = b.collect(a);
-		b.collect(bcb);
+		const unA = _.collect(a);
+		_.collect(bcb);
 
-		b.process();
+		_.process();
 		expect(calls).toEqual(['a', 'b']);
 
 		// removing one prevents further calls for that callback
 		unA();
 		calls.length = 0;
-		b.process();
+		_.process();
 		expect(calls).toEqual(['b']);
 
 		// dispose calls remaining callbacks then clears
 		calls.length = 0;
-		b.dispose();
+		_.dispose();
 		expect(calls).toEqual(['b']);
 		calls.length = 0;
-		b.process();
+		_.process();
 		expect(calls).toEqual([]);
 	});
 
 	it('extract: removes a specific callback without invoking it', () => {
-		const b = bin();
+		const _ = bin();
 		const spy = vi.fn();
 
-		b.collect(spy);
+		_.collect(spy);
 
-		const returned = b.extract(spy);
+		const returned = _.extract(spy);
 		// unchanged identity
 		expect(returned).toBe(spy);
 
-		b.process();
+		_.process();
 		expect(spy).not.toHaveBeenCalled();
 	});
 
 	it('_ setter: assigning acts like collect', () => {
-		const b = bin();
+		const _ = bin();
 		const calls: string[] = [];
 
-		b._ = () => {
+		_._ = () => {
 			calls.push('x');
 		};
-		b._ = () => {
+		_._ = () => {
 			calls.push('y');
 		};
 
-		b.process();
+		_.process();
 		expect(calls).toEqual(['x', 'y']);
 
 		calls.length = 0;
-		b.dispose();
+		_.dispose();
 		expect(calls).toEqual(['x', 'y']);
 	});
 
 	it('return value calls dispose', () => {
-		const b = bin();
+		const _ = bin();
 		const calls: string[] = [];
 
-		b._ = () => {
+		_._ = () => {
 			calls.push('z');
 		};
 
-		b();
+		_();
 		expect(calls).toEqual(['z']);
 	});
 });
