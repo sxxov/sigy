@@ -47,4 +47,23 @@ describe(bin, () => {
 		b.process();
 		expect(spy).not.toHaveBeenCalled();
 	});
+
+	it('_ setter: assigning acts like collect', () => {
+		const b = bin();
+		const calls: string[] = [];
+
+		b._ = () => {
+			calls.push('x');
+		};
+		b._ = () => {
+			calls.push('y');
+		};
+
+		b.process();
+		expect(calls).toEqual(['x', 'y']);
+
+		calls.length = 0;
+		b.dispose();
+		expect(calls).toEqual(['x', 'y']);
+	});
 });

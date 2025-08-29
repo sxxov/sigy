@@ -22,7 +22,7 @@ export function bin() {
 		};
 	};
 	/**
-	 * remove and return a specific callback from the bin without invoking it.
+	 * remove & return a specific callback from the bin without invoking it.
 	 *
 	 * @param callback the callback to extract
 	 * @returns the same callback passed in
@@ -40,7 +40,7 @@ export function bin() {
 	const process = () => {
 		for (const callback of callbacks) void callback();
 	};
-	/** invoke all callbacks then clear the bin. */
+	/** invoke all callbacks & clear the bin. */
 	const dispose = () => {
 		process();
 		callbacks.clear();
@@ -51,5 +51,15 @@ export function bin() {
 		extract,
 		process,
 		dispose,
+		/**
+		 * assignment helper that behaves like {@link collect}.
+		 *
+		 * note: as a setter, this does not return a remover; use {@link collect}
+		 * directly if you need to un-collect a callback later.
+		 */
+		// eslint-disable-next-line accessor-pairs, @typescript-eslint/naming-convention
+		set _(value: () => void | Promise<void>) {
+			collect(value);
+		},
 	};
 }
