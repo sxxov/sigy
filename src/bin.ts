@@ -8,9 +8,22 @@
  */
 export function bin() {
 	const callbacks = new Set<() => void | Promise<void>>();
+
+	// we assign these to a named function first so
+	// typescript correctly attaches the doc comments
+	// to them when generating d.ts
+
+	// this instance comment is usually lost in d.ts
 	/** invoke all callbacks & clear the bin. equivalent to {@link bin().dispose} */
 	const instance = () => {
-		instance.dispose();
+		dispose();
+	};
+
+	const collect = (callback: () => void | Promise<void>) => {
+		callbacks.add(callback);
+		return () => {
+			callbacks.delete(callback);
+		};
 	};
 	/**
 	 * add a callback to the bin.
@@ -18,11 +31,11 @@ export function bin() {
 	 * @param callback function to run during `process`/`dispose`
 	 * @returns unsubscriber that removes the callback from the bin
 	 */
-	instance.collect = (callback: () => void | Promise<void>) => {
-		callbacks.add(callback);
-		return () => {
-			callbacks.delete(callback);
-		};
+	instance.collect = collect;
+
+	const extract = (callback: () => void | Promise<void>) => {
+		callbacks.delete(callback);
+		return callback;
 	};
 	/**
 	 * remove & return a specific callback from the bin without invoking it.
@@ -30,9 +43,10 @@ export function bin() {
 	 * @param callback the callback to extract
 	 * @returns the same callback passed in
 	 */
-	instance.extract = (callback: () => void | Promise<void>) => {
-		callbacks.delete(callback);
-		return callback;
+	instance.extract = extract;
+
+	const process = () => {
+		for (const callback of callbacks) void callback();
 	};
 	/**
 	 * invoke all currently collected callbacks (without clearing the bin).
@@ -40,14 +54,14 @@ export function bin() {
 	 * callbacks are invoked in insertion order; async callbacks are started but
 	 * not awaited.
 	 */
-	instance.process = () => {
-		for (const callback of callbacks) void callback();
-	};
-	/** invoke all callbacks & clear the bin. */
-	instance.dispose = () => {
+	instance.process = process;
+
+	const dispose = () => {
 		instance.process();
 		callbacks.clear();
 	};
+	/** invoke all callbacks & clear the bin. */
+	instance.dispose = dispose;
 	/**
 	 * assignment helper that behaves like {@link bin().collect}.
 	 *
