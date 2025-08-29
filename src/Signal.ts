@@ -83,6 +83,17 @@ export class Signal<T> implements WritableSignal<T> {
 	}
 
 	/**
+	 * returns a cast into read-only view of the signal.
+	 *
+	 * since only the type is changed, the identity of the object remains the
+	 * same & you can technically still call {@linkcode set} et al. by ignoring
+	 * the typechecker.
+	 */
+	public get readonly() {
+		return this as ReadableSignal<T>;
+	}
+
+	/**
 	 * set the signal value & notify subscribers if it changed. comparison uses
 	 * {@link Signal.compare}.
 	 *

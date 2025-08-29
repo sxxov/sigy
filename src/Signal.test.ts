@@ -186,4 +186,28 @@ describe(Signal, () => {
 		unsub();
 		expect(stopped).toBe(1);
 	});
+
+	it('readonly: returns read-only view sharing identity & behavior', () => {
+		const s = new Signal(1);
+		expect(s.started).toBe(false);
+
+		const r = s.readonly;
+		// same underlying object (runtime identity)
+		expect(r).toBe(s);
+
+		// reading via readonly starts the signal and returns value
+		expect(r.get()).toBe(1);
+		expect(s.started).toBe(true);
+
+		const seen: number[] = [];
+		const unsub = r.subscribe((v) => {
+			seen.push(v);
+		});
+		expect(seen).toEqual([1]);
+
+		s.set(2);
+		expect(seen).toEqual([1, 2]);
+
+		unsub();
+	});
 });
