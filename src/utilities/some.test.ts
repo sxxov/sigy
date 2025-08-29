@@ -3,9 +3,7 @@ import { some } from './some';
 
 describe(some, () => {
 	it('returns false for undefined or null', () => {
-		// @ts-expect-error testing runtime
 		expect(some(undefined)).toBe(false);
-		// @ts-expect-error testing runtime
 		expect(some(null)).toBe(false);
 	});
 
@@ -16,4 +14,3 @@ describe(some, () => {
 		expect(some(NaN)).toBe(true);
 	});
 });
-
