@@ -1,0 +1,55 @@
+/**
+ * create a simple callback bin to collect and later flush callbacks.
+ *
+ * The bin supports collecting callbacks, manually processing them, extracting a
+ * specific callback, and disposing all collected callbacks at once.
+ *
+ * @returns utilities to manage the collected callbacks
+ */
+export function bin() {
+	const callbacks = new Set<() => void | Promise<void>>();
+
+	/**
+	 * add a callback to the bin.
+	 *
+	 * @param callback function to run during `process`/`dispose`
+	 * @returns unsubscriber that removes the callback from the bin
+	 */
+	const collect = (callback: () => void | Promise<void>) => {
+		callbacks.add(callback);
+		return () => {
+			callbacks.delete(callback);
+		};
+	};
+	/**
+	 * remove and return a specific callback from the bin without invoking it.
+	 *
+	 * @param callback the callback to extract
+	 * @returns the same callback passed in
+	 */
+	const extract = (callback: () => void | Promise<void>) => {
+		callbacks.delete(callback);
+		return callback;
+	};
+	/**
+	 * invoke all currently collected callbacks (without clearing the bin).
+	 *
+	 * callbacks are invoked in insertion order; async callbacks are started but
+	 * not awaited.
+	 */
+	const process = () => {
+		for (const callback of callbacks) void callback();
+	};
+	/** invoke all callbacks then clear the bin. */
+	const dispose = () => {
+		process();
+		callbacks.clear();
+	};
+
+	return {
+		collect,
+		extract,
+		process,
+		dispose,
+	};
+}

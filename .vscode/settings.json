@@ -1,0 +1,52 @@
+{
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"[javascript]": {
+		"editor.defaultFormatter": "dbaeumer.vscode-eslint"
+	},
+	"[javascriptreact]": {
+		"editor.defaultFormatter": "dbaeumer.vscode-eslint"
+	},
+	"[typescript]": {
+		"editor.defaultFormatter": "dbaeumer.vscode-eslint"
+	},
+	"[typescriptreact]": {
+		"editor.defaultFormatter": "dbaeumer.vscode-eslint"
+	},
+	"[glsl]": {
+		"editor.defaultFormatter": "xaver.clang-format"
+	},
+	"editor.colorDecorators": true,
+	"typescript.tsdk": "node_modules\\typescript\\lib",
+	"editor.formatOnSave": true,
+	"editor.codeActionsOnSave": {
+		"source.fixAll": "explicit"
+	},
+	"typescript.preferences.importModuleSpecifierEnding": "minimal",
+	"typescript.preferences.importModuleSpecifier": "shortest",
+	"task.allowAutomaticTasks": "on",
+	"testing.automaticallyOpenPeekView": "never",
+	"stylelint.validate": ["css", "less", "postcss", "tailwindcss"],
+	"files.eol": "\n",
+	"files.associations": {
+		"*.pcss": "tailwindcss"
+	},
+	"tailwindCSS.experimental.classRegex": [
+		// tw`...`
+		[
+			"(tw`(?:(?:(?:[^`]*\\$\\{[^]*?\\})[^`]*)+|[^`]*`))",
+			"((?:(?<=`)(?:[^\"'`]*)(?=\\${|`))|(?:(?<=\\})(?:[^\"'`]*)(?=\\${))|(?:(?<=\\})(?:[^\"'`]*)(?=`))|(?:(?<=')(?:[^\"'`]*)(?='))|(?:(?<=\")(?:[^\"'`]*)(?=\"))|(?:(?<=`)(?:[^\"'`]*)(?=`)))"
+		],
+
+		// clsx(...)
+		// https://github.com/paolotiu/tailwind-intellisense-regex-list?tab=readme-ov-file#clsx
+		// ["clsx\\(.*?\\)", "(?:'|\"|`)([^\"'`]*)(?:'|\"|`)"],
+		// headless ui
+		// https://github.com/paolotiu/tailwind-intellisense-regex-list?tab=readme-ov-file#headlessui-transition-react
+		"(?:enter|leave)(?:From|To)?=\\s*(?:\"|'|{`)([^(?:\"|'|`})]*)",
+		// class="..."
+		"class?\\s*=\\s*\"([^\"]*)"
+	],
+	"clang-format.executable": "${workspaceRoot}/node_modules/.bin/clang-format",
+	"javascript.preferences.useAliasesForRenames": false,
+	"typescript.preferences.useAliasesForRenames": false
+}

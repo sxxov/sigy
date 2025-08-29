@@ -1,0 +1,37 @@
+{
+	"JSDoc Type": {
+		"prefix": ["/", "@type"],
+		"body": "/** @type {${1:any}} */$0",
+		"description": "Type annotation for a variable or function parameter"
+	},
+	"JSDoc String Type": {
+		"prefix": "/string",
+		"body": "/** @type {string} */$0",
+		"description": "Type annotation for a string variable or function parameter"
+	},
+	"JSDoc Number Type": {
+		"prefix": "/number",
+		"body": "/** @type {number} */$0",
+		"description": "Type annotation for a number variable or function parameter"
+	},
+	"JSDoc Boolean Type": {
+		"prefix": "/boolean",
+		"body": "/** @type {boolean} */$0",
+		"description": "Type annotation for a boolean variable or function parameter"
+	},
+	"JSDoc Object Type": {
+		"prefix": "/object",
+		"body": "/** @type {{$1}} */$0",
+		"description": "Type annotation for an object variable or function parameter"
+	},
+	"JSDoc Array Type": {
+		"prefix": "/array",
+		"body": "/** @type {${1:any}[]} */$0",
+		"description": "Type annotation for an array variable or function parameter"
+	},
+	"JSDoc Function Type": {
+		"prefix": "/function",
+		"body": "/** @type {(${1:...args: any[]}) => ${2:any} */$0",
+		"description": "Type annotation for a function variable or function parameter"
+	},
+}
