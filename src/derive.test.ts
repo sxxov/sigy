@@ -34,6 +34,26 @@ describe(derive, () => {
 		unsubscribe();
 	});
 
+	it('from values emits latest state when dependencies change before subscribing', () => {
+		const count = new Signal(1);
+		const label = new Signal('initial');
+
+		const d = derive({ count, label });
+
+		count.set(2);
+		label.set('updated');
+
+		const seen: { count: number; label: string }[] = [];
+		const unsubscribe = d.subscribe((value) => {
+			seen.push(value);
+		});
+
+		expect(seen).toEqual([{ count: 2, label: 'updated' }]);
+		expect(d.get()).toBe(seen[0]);
+
+		unsubscribe();
+	});
+
 	it('with callback computes from $-prefixed values', () => {
 		const count = new Signal(2);
 		const label = new Signal('units');
@@ -57,6 +77,63 @@ describe(derive, () => {
 		expect(d.get()).toBe(values[values.length - 1]);
 
 		unsubscribe();
+	});
+
+	it('with callback emits latest computation when dependencies change before subscribing', () => {
+		const count = new Signal(1);
+		const label = new Signal('unit');
+
+		const d = derive(
+			{ count, label },
+			({ $count, $label }) => `${$count} ${$label}`,
+		);
+
+		count.set(5);
+		label.set('items');
+
+		const seen: string[] = [];
+		const unsubscribe = d.subscribe((value) => {
+			seen.push(value);
+		});
+
+		expect(seen).toEqual(['5 items']);
+		expect(d.get()).toBe(seen[0]);
+
+		unsubscribe();
+	});
+
+	it('with callback composes onStart starter and stopper', () => {
+		const count = new Signal(1);
+		const starts: number[] = [];
+		let stops = 0;
+
+		const d = derive(
+			{ count },
+			({ $count }) => $count * 2,
+			(store) => {
+				starts.push(store.get());
+				return () => {
+					stops += 1;
+				};
+			},
+		);
+
+		const unsubscribeA = d.subscribe(() => {});
+		expect(starts).toEqual([2]);
+		expect(stops).toBe(0);
+
+		count.set(3);
+		unsubscribeA();
+		expect(stops).toBe(1);
+
+		count.set(7);
+
+		const unsubscribeB = d.subscribe(() => {});
+		expect(starts).toEqual([2, 14]);
+		expect(stops).toBe(1);
+
+		unsubscribeB();
+		expect(stops).toBe(2);
 	});
 
 	it('with callback recomputes on dependency change', () => {
