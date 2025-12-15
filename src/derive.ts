@@ -84,11 +84,8 @@ function deriveFromCallback<
 
 	if (entries.length <= 0) return new Signal(callback({} as Values));
 
-	const values = Object.fromEntries(
-		entries.map(([k, store]) => [`$${k}`, store.get()]),
-	) as Values;
-
-	return new Signal(callback(values), (store) => {
+	const values = {} as Values;
+	const signal = new Signal(callback(values), (store) => {
 		const _ = bin();
 		const { set } = store;
 
@@ -107,6 +104,7 @@ function deriveFromCallback<
 
 		return _;
 	});
+	return signal;
 }
 
 function deriveFromValues<Stores extends Record<string, ReadableSignal<any>>>(
@@ -118,22 +116,21 @@ function deriveFromValues<Stores extends Record<string, ReadableSignal<any>>>(
 
 	if (entries.length <= 0) return new Signal({} as Values);
 
-	const values = Object.fromEntries(
-		entries.map(([k, store]) => [k, store.get()]),
-	) as Values;
-
-	const valuesStore = new Signal(values, ({ set }) => {
+	const values = {} as Values;
+	const signal = new Signal(values, () => {
 		const _ = bin();
 
 		for (const [k, store] of entries) values[k as Key] = store.get();
-		set(values);
-
 		for (const [k, store] of entries)
 			_._ = store.subscribeSoon((it) => {
 				values[k as Key] = it;
+
+				// we need to do a manual trigger here since we're never
+				// changing the returned `values` object
+				signal.trigger();
 			});
 
 		return _;
 	});
-	return valuesStore;
+	return signal;
 }

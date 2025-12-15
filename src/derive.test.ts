@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { Signal } from './Signal';
 import { derive } from './derive';
 
@@ -50,6 +50,38 @@ describe(derive, () => {
 
 		expect(seen).toEqual([{ count: 2, label: 'updated' }]);
 		expect(d.get()).toBe(seen[0]);
+
+		unsubscribe();
+	});
+
+	it('from values notifies subscribers when dependencies fire', () => {
+		const count = new Signal(0);
+		const label = new Signal('a');
+
+		const d = derive({ count, label });
+
+		const refs: { count: number; label: string }[] = [];
+		const values: { count: number; label: string }[] = [];
+		const unsubscribe = d.subscribe((value) => {
+			refs.push(value);
+			values.push({ ...value });
+		});
+
+		const ref = refs[0];
+
+		count.set(1);
+		count.trigger();
+		label.set('b');
+
+		expect(values).toEqual([
+			{ count: 0, label: 'a' },
+			{ count: 1, label: 'a' },
+			{ count: 1, label: 'a' },
+			{ count: 1, label: 'b' },
+		]);
+		expect(refs[1]).toBe(ref);
+		expect(refs[2]).toBe(ref);
+		expect(refs[3]).toBe(ref);
 
 		unsubscribe();
 	});
@@ -169,5 +201,29 @@ describe(derive, () => {
 	it('with empty inputs & callback computes once', () => {
 		const d = derive({}, () => 'static');
 		expect(d.get()).toBe('static');
+	});
+
+	it('get starts derives & returns computed values for records and callbacks', () => {
+		const count = new Signal(5);
+		const label = new Signal('ready');
+
+		const record = derive({ count, label });
+		const mapper = vi.fn(({ $count }: { $count: number }) => $count * 2);
+		const mapped = derive({ count }, mapper);
+
+		const recordValue = record.get();
+		expect(recordValue).toEqual({ count: 5, label: 'ready' });
+
+		count.set(6);
+		expect(record.get()).toBe(recordValue);
+		expect(recordValue.count).toBe(6);
+
+		expect(mapper).toHaveBeenCalledTimes(1);
+		expect(mapped.get()).toBe(12);
+		expect(mapper).toHaveBeenCalledTimes(2);
+
+		count.set(7);
+		expect(mapped.get()).toBe(14);
+		expect(mapper).toHaveBeenCalledTimes(3);
 	});
 });
