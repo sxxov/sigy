@@ -85,7 +85,7 @@ function deriveFromCallback<
 	if (entries.length <= 0) return new Signal(callback({} as Values));
 
 	const values = {} as Values;
-	const signal = new Signal(callback(values), (store) => {
+	const signal = new Signal(undefined as ReturnType<Callback>, (store) => {
 		const _ = bin();
 		const { set } = store;
 

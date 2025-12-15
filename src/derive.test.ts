@@ -198,6 +198,38 @@ describe(derive, () => {
 		unsubscribe();
 	});
 
+	it('with callback provides defined dependency values', () => {
+		const count = new Signal(4);
+		const label = new Signal('ok');
+
+		const mapper = vi.fn(
+			({ $count, $label }: { $count: number; $label: string }) =>
+				`${$count}-${$label}`,
+		);
+
+		const d = derive({ count, label }, mapper);
+
+		const seen: string[] = [];
+		const unsubscribe = d.subscribe((v) => {
+			seen.push(v);
+		});
+
+		expect(seen[0]).toBe('4-ok');
+		expect(mapper.mock.calls.at(-1)?.[0]).toEqual({
+			$count: 4,
+			$label: 'ok',
+		});
+
+		label.set('ready');
+		expect(seen[seen.length - 1]).toBe('4-ready');
+		expect(mapper.mock.calls.at(-1)?.[0]).toEqual({
+			$count: 4,
+			$label: 'ready',
+		});
+
+		unsubscribe();
+	});
+
 	it('with empty inputs & callback computes once', () => {
 		const d = derive({}, () => 'static');
 		expect(d.get()).toBe('static');
@@ -214,16 +246,19 @@ describe(derive, () => {
 		const recordValue = record.get();
 		expect(recordValue).toEqual({ count: 5, label: 'ready' });
 
+		const initialMapperCalls = mapper.mock.calls.length;
+		expect(mapped.get()).toBe(10);
+		expect(mapper.mock.calls.length).toBe(initialMapperCalls + 1);
+
 		count.set(6);
 		expect(record.get()).toBe(recordValue);
 		expect(recordValue.count).toBe(6);
 
-		expect(mapper).toHaveBeenCalledTimes(1);
+		expect(mapper.mock.calls.length).toBe(initialMapperCalls + 2);
 		expect(mapped.get()).toBe(12);
-		expect(mapper).toHaveBeenCalledTimes(2);
 
 		count.set(7);
 		expect(mapped.get()).toBe(14);
-		expect(mapper).toHaveBeenCalledTimes(3);
+		expect(mapper.mock.calls.length).toBe(initialMapperCalls + 3);
 	});
 });
